@@ -1,0 +1,23 @@
+set_property PACKAGE_PIN H16 [get_ports { Clk }]
+set_property IOSTANDARD LVCMOS33 [get_ports { Clk }]
+create_clock -add -name sys_clk_pin -period 8.00 -waveform {0 5} [get_ports { Clk }];
+
+set_property PACKAGE_PIN D19 [get_ports Reset_n]
+set_property IOSTANDARD LVCMOS33 [get_ports Reset_n]
+
+set_property PACKAGE_PIN R14 [get_ports Led[0]]
+set_property PACKAGE_PIN P14 [get_ports Led[1]]
+set_property PACKAGE_PIN N16 [get_ports Led[2]]
+set_property PACKAGE_PIN M14 [get_ports Led[3]]
+# set_property PACKAGE_PIN G17 [get_ports Led[4]]
+# set_property PACKAGE_PIN L14 [get_ports Led[5]]
+# set_property PACKAGE_PIN L15 [get_ports Led[6]]
+# set_property PACKAGE_PIN G14 [get_ports Led[7]]
+set_property IOSTANDARD LVCMOS33 [get_ports Led[0]]
+set_property IOSTANDARD LVCMOS33 [get_ports Led[1]]
+set_property IOSTANDARD LVCMOS33 [get_ports Led[2]]
+set_property IOSTANDARD LVCMOS33 [get_ports Led[3]]
+# set_property IOSTANDARD LVCMOS33 [get_ports Led[4]]
+# set_property IOSTANDARD LVCMOS33 [get_ports Led[5]]
+# set_property IOSTANDARD LVCMOS33 [get_ports Led[6]]
+# set_property IOSTANDARD LVCMOS33 [get_ports Led[7]]
