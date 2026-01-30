@@ -38,7 +38,7 @@ module ov5640_ram_tft #(
     wire [11:0] H_Addr;
     wire [11:0] V_Addr;
     wire        Data_Req;
-    assign Disp_PWM = 1;
+    assign Disp_PWM = 1'd1;
     wire        Init_Done;
     reg  [15:0] wraddr;  // ram寫入地址計數器
     reg  [15:0] rdaddr;

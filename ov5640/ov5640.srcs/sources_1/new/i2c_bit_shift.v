@@ -25,21 +25,18 @@ module i2c_bit_shift (
 
     reg i2c_sdat_o;
 
-    //ÏµÍ³Ê±ÖÓ²ÉÓÃ50MHz
     parameter SYS_CLOCK = 125_000_000;
-    //SCL×ÜÏßÊ±ÖÓ²ÉÓÃ400kHz
     parameter SCL_CLOCK = 400_000;
-    //²úÉúÊ±ÖÓSCL¼ÆÊýÆ÷×î´óÖµ
-    localparam SCL_CNT_M = SYS_CLOCK / SCL_CLOCK / 4 - 1;
+    localparam SCL_CNT_M = (SYS_CLOCK / SCL_CLOCK / 4) - 1;
 
     reg i2c_sdat_oe;
 
-    localparam WR = 6'b000001,  //Ð´ÇëÇó
-    STA = 6'b000010,  //ÆðÊ¼Î»ÇëÇó
-    RD = 6'b000100,  //¶ÁÇëÇó
-    STO = 6'b001000,  //Í£Ö¹Î»ÇëÇó
-    ACK = 6'b010000,  //Ó¦´ðÎ»ÇëÇó
-    NACK = 6'b100000;  //ÎÞÓ¦´ðÇëÇó
+    localparam  WR = 6'b000001,
+    STA = 6'b000010,
+    RD = 6'b000100,
+    STO = 6'b001000,
+    ACK = 6'b010000,
+    NACK = 6'b100000;
 
     reg [19:0] div_cnt;
     reg        en_div_cnt;
@@ -57,13 +54,13 @@ module i2c_bit_shift (
 
     reg [7:0] state;
 
-    localparam IDLE = 8'b00000001,  //¿ÕÏÐ×´Ì¬
-    GEN_STA = 8'b00000010,  //²úÉúÆðÊ¼ÐÅºÅ
-    WR_DATA = 8'b00000100,  //Ð´Êý¾Ý×´Ì¬
-    RD_DATA = 8'b00001000,  //¶ÁÊý¾Ý×´Ì¬
-    CHECK_ACK = 8'b00010000,  //¼ì²âÓ¦´ð×´Ì¬
-    GEN_ACK = 8'b00100000,  //²úÉúÓ¦´ð×´Ì¬
-    GEN_STO = 8'b01000000;  //²úÉúÍ£Ö¹ÐÅºÅ
+    localparam  IDLE = 8'b00000001,
+    GEN_STA = 8'b00000010,
+    WR_DATA = 8'b00000100,
+    RD_DATA = 8'b00001000,
+    CHECK_ACK = 8'b00010000,
+    GEN_ACK = 8'b00100000,
+    GEN_STO = 8'b01000000;
 
     reg [4:0] cnt;
 
