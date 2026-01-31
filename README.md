@@ -1,6 +1,6 @@
 <p align="center">
   <a href="" rel="noopener">
- <img width=200px height=200px src="a-lovely-fpga-board.png" alt="Project logo"></a>
+ <img width=200px height=200px src="readme_img\a-lovely-fpga-board.png" alt="Project logo"></a>
 </p>
 
 <h3 align="center"> ⚒️ FPGA自學紀錄</h3>
@@ -52,12 +52,17 @@
 
 ## 🎈 Usage <a name="usage"></a>
 
-- `XXX\XXX.srcs\sources_1\new\XXX.v`是各個功能的模組
+- `XXX\XXX.srcs\sources_1\new\XXX.v`是各個模組的實現
 - `XXX\XXX.srcs\sim_1\new\XXX_tb.v`是testbench(模組在這裡例化並測試)
 - `XXX\XXX.srcs\constrs_1\new\XXX.xdc`是引腳分配(要看著板子的datasheet更改腳位編號)
+- `XXX\XXX.xpr`是專案檔案，用不同板子需修改此處
+<img src="readme_img/where_is_setting.png" width="200" alt="圖片描述">
+<img src="readme_img/where_is_proj_dev.png" width="300" alt="圖片描述">
 
 ## 🚀 Deployment <a name = "deployment"></a>
-要開箱即用請下載Vivado 2025.2，版本不同可能導致ip無法使用，需重新生成
+要開箱即用請下載Vivado 2025.2，版本不同可能導致ip無法使用，需重新生成(對ip右鍵點擊`Upgrade IP...`)
+
+<img src="readme_img\upgradeIP.png" width="300" alt="圖片描述">
 
 ## ✍️ Authors <a name = "authors"></a>
 
