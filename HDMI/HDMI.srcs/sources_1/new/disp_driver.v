@@ -8,7 +8,7 @@ module disp_driver (
     DISP_HS,
     DISP_VS,
     DISP_DE,
-    DISP_CLK,
+    DISP_PCLK,
     disp_red,
     disp_green,
     disp_blue
@@ -19,26 +19,24 @@ module disp_driver (
 
     output [11:0] h_addr;
     output [11:0] v_addr;
-    output DISP_CLK;
+    output DISP_PCLK;
     output DISP_DE;
-    // 組合邏輯輸出
-    output [`Red-1:0] disp_red;
-    output [`Green-1:0] disp_green;
-    output [`Blue-1:0] disp_blue;
-    output DISP_HS;
-    output DISP_VS;
-    // 時序邏輯輸出
-    // output reg [`Red-1:0] disp_red;
-    // output reg [`Green-1:0] disp_green;
-    // output reg [`Blue-1:0] disp_blue;
-    // output reg DISP_HS;
-    // output reg DISP_VS;
+    // output [`Red-1:0]disp_red;
+    // output [`Green-1:0]disp_green;
+    // output [`Blue-1:0]disp_blue;
+    // output DISP_HS;
+    // output DISP_VS;
+    output reg [`Red-1:0] disp_red;
+    output reg [`Green-1:0] disp_green;
+    output reg [`Blue-1:0] disp_blue;
+    output reg DISP_HS;
+    output reg DISP_VS;
 
     reg [11:0] hcnt;
     reg [11:0] vcnt;
     reg        disp_de_r;
-    assign DISP_DE  = disp_de_r;
-    assign DISP_CLK = ~CLK_DISP;  // for DAC
+    assign DISP_DE   = disp_de_r;
+    assign DISP_PCLK = ~CLK_DISP;  // for DAC
 
     parameter H_DATA_BEGIN = `H_SYNC_TIME + `H_BACK_PORCH + `H_LEFT_BORDER;
     parameter H_DATA_END = `H_TOTAL - `H_RIGHT_BORDER - `H_FRONT_PORCH;
@@ -70,22 +68,19 @@ module disp_driver (
                         (hcnt<H_DATA_END)&&
                         (vcnt>=V_DATA_BEGIN)&&
                         (vcnt<V_DATA_END));
-    // 時序邏輯輸出
-    // always @(posedge CLK_DISP or posedge Reset_p)
-    //     if (Reset_p) begin
-    //         disp_red   <= 0;
-    //         disp_green <= 0;
-    //         disp_blue  <= 0;
-    //         DISP_HS    <= 0;
-    //         DISP_VS    <= 0;
-    //     end else begin
-    //         DISP_HS                           <= (hcnt >= `H_SYNC_TIME);
-    //         DISP_VS                           <= (vcnt >= `V_SYNC_TIME);
-    //         {disp_red, disp_green, disp_blue} <= (disp_de_r) ? Data : 0;
-    //     end
-
-    // 組合邏輯輸出
-    assign DISP_HS                           = (hcnt > `H_SYNC_TIME - 1);
-    assign DISP_VS                           = (vcnt > `V_SYNC_TIME - 1);
-    assign {disp_red, disp_green, disp_blue} = (disp_de_r) ? Data : 0;
+    always @(posedge CLK_DISP or posedge Reset_p)
+        if (Reset_p) begin
+            disp_red   <= 0;
+            disp_green <= 0;
+            disp_blue  <= 0;
+            DISP_HS    <= 0;
+            DISP_VS    <= 0;
+        end else begin
+            DISP_HS                           <= (hcnt >= `H_SYNC_TIME);
+            DISP_VS                           <= (vcnt >= `V_SYNC_TIME);
+            {disp_red, disp_green, disp_blue} <= (disp_de_r) ? Data : 0;
+        end
+    // assign DISP_HS=(hcnt>`H_SYNC_TIME-1);
+    // assign DISP_VS=(vcnt>`V_SYNC_TIME-1);
+    // assign {disp_red,disp_green,disp_blue}=(disp_de_r)?Data:0;
 endmodule

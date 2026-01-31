@@ -4,15 +4,15 @@
 // `define Res_480x272   1// 9M
 // `define Res_640x480   1// 25M
 // `define Res_800x480   1// 33M
-`define Res_800x600 1// 40M
+`define Res_800x600   1// 40M
 // `define Res_1024x600  1// 51M
 // `define Res_1024x768  1// 65M
-// `define Res_1280x720  1// 74.25M
+// `define Res_1280x720 1// 74.25M
 // `define Res_1920x1080 1// 148.5M
 
-//`define RGB_888 1
+`define RGB_888 1
 // `define RGB_565 1
-`define RGB_444 1
+//  `define RGB_444 1
 
 `ifdef RGB_888
 `define Red 8

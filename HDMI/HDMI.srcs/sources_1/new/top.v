@@ -1,74 +1,82 @@
-// 已上板驗證，要接網路線
+// 會閃爍
 `include "disp_parameter_cfg.v"
-// `define RGB888
-// `define RGB565
-`define RGB444
-module VGA_test (
+module top (
     Clk,
     Reset_p,
-    DISP_HS,
-    DISP_VS,
-    disp_red,
-    disp_green,
-    disp_blue
+    hdmi_clk_n,
+    hdmi_clk_p,
+    hdmi_tx_n,
+    hdmi_tx_p
 );
     input Clk;
     input Reset_p;
-    output DISP_HS;
-    output DISP_VS;
-    output [`Red-1:0] disp_red;
-    output [`Green-1:0] disp_green;
-    output [`Blue-1:0] disp_blue;
+    output hdmi_clk_n;
+    output hdmi_clk_p;
+    output [2:0] hdmi_tx_n;
+    output [2:0] hdmi_tx_p;
 
-    wire        DISP_DE;
-    wire        DISP_CLK;
-    wire [11:0] DISP_DATA;  // for RGB444
-    wire [11:0] h_addr;
-    wire [11:0] v_addr;
-    reg  [11:0] Data;  // for RGB444
-    assign {disp_red, disp_green, disp_blue} = DISP_DATA;
+    wire [      11:0] h_addr;
+    wire [      11:0] v_addr;
 
-    //    1056*525*60 ≅ 33M
-    wire Clk_DISP;
+    reg  [      23:0] Data;
+    wire              Clk_DISP;
+    wire              Clk_DISPx5;
+    wire              locked;
+    wire              DISP_HS;
+    wire              DISP_VS;
+    wire              DISP_DE;
+    wire              DISP_CLK;
+    wire [  `Red-1:0] disp_red;
+    wire [`Green-1:0] disp_green;
+    wire [ `Blue-1:0] disp_blue;
     clk_div clk_div_inst0 (
         .clk_out1(Clk_DISP),
-        .clk_in1 (Clk),       // 125M
+        .clk_out2(Clk_DISPx5),
+        .clk_in1 (Clk),         // 125M
+        .locked  (locked),
         .reset   (Reset_p)
     );
-    VGA_CTRL VGA_CTRL_inst0 (
-        .CLK     (Clk_DISP),
-        .Reset_p (Reset_p),
-        .Data_in (Data),
-        .hcount  (h_addr),
-        .vcount  (v_addr),
-        .VGA_HS  (DISP_HS),
-        .VGA_VS  (DISP_VS),
-        .VGA_BLK (DISP_DE),
-        .VGA_CLK (DISP_CLK),
-        .VGA_DATA(DISP_DATA)
+    dvi_encoder dvi_encoder_inst0 (
+        .pixelclk   (Clk_DISP),    // input wire pix_clk
+        .pixelclk5x (Clk_DISPx5),  // input wire pix_clkx5
+        .Reset_p    (~locked),     // input wire rst
+        .red_din    (disp_red),    // input wire [7 : 0] red
+        .green_din  (disp_green),  // input wire [7 : 0] green
+        .blue_din   (disp_blue),   // input wire [7 : 0] blue
+        .hsync      (DISP_HS),     // input wire hsync
+        .vsync      (DISP_VS),     // input wire vsync
+        .de         (DISP_DE),     // input wire vde
+        .tmds_clk_p (hdmi_clk_p),  // output wire TMDS_CLK_P
+        .tmds_clk_n (hdmi_clk_n),  // output wire TMDS_CLK_N
+        .tmds_data_p(hdmi_tx_p),   // output wire [2 : 0] TMDS_DATA_P
+        .tmds_data_n(hdmi_tx_n)    // output wire [2 : 0] TMDS_DATA_N
+    );
+    disp_driver disp_driver_inst0 (
+        .CLK_DISP  (Clk_DISP),
+        .Reset_p   (~locked),
+        .Data      (Data),
+        .h_addr    (h_addr),
+        .v_addr    (v_addr),
+        .DISP_HS   (DISP_HS),
+        .DISP_VS   (DISP_VS),
+        .DISP_DE   (DISP_DE),
+        .DISP_PCLK (),
+        .disp_red  (disp_red),
+        .disp_green(disp_green),
+        .disp_blue (disp_blue)
     );
 
-`ifdef RGB888
-    localparam BLACK = 24'h000000;
-    localparam RED = 24'hFF0000;
-    localparam GREEN = 24'h00FF00;
-    localparam BLUE = 24'h0000FF;
-    localparam YELLOW = 24'hFFFF00;
-    localparam AQUA = 24'h00FFFF;
-    localparam PINK = 24'hFF00FF;
-    localparam WHITE = 24'hFFFFFF;
-`elsif RGB444
-    localparam BLACK = 12'h000;
-    localparam RED = 12'hF00;
-    localparam GREEN = 12'h0F0;
-    localparam BLUE = 12'h00F;
-    localparam YELLOW = 12'hFF0;
-    localparam AQUA = 12'h0FF;
-    localparam PINK = 12'hF0F;
-    localparam WHITE = 12'hFFF;
-`endif
+    localparam  BLACK = 24'h000000
+                ,RED = 24'hFF0000
+                ,GREEN = 24'h00FF00
+                ,BLUE = 24'h0000FF
+                ,YELLOW = 24'hFFFF00
+                ,AQUA = 24'h00FFFF
+                ,PINK = 24'hFF00FF
+                ,WHITE = 24'hFFFFFF
+                ;
     reg [31:0] cnt;
-    parameter MCNT = 2 * `DISP_CLK - 1;  // 2s
+    parameter MCNT = `DISP_CLK * 2 - 1;  // 2s
     parameter MCNT_EN = `DISP_CLK - 1;  // 1s
     always @(posedge Clk_DISP or posedge Reset_p)
         if (Reset_p) cnt <= 0;
@@ -126,12 +134,12 @@ module VGA_test (
             case ({
                 block_7, block_6, block_5, block_4, block_3, block_2, block_1, block_0
             })
-                8'b0000_0001: Data = YELLOW;
-                8'b0000_0010: Data = BLACK;
-                8'b0000_0100: Data = BLUE;
+                8'b0000_0001: Data = PINK;
+                8'b0000_0010: Data = YELLOW;
+                8'b0000_0100: Data = BLACK;
                 8'b0000_1000: Data = RED;
                 8'b0001_0000: Data = GREEN;
-                8'b0010_0000: Data = PINK;
+                8'b0010_0000: Data = BLUE;
                 8'b0100_0000: Data = AQUA;
                 8'b1000_0000: Data = WHITE;
             endcase
@@ -139,12 +147,12 @@ module VGA_test (
             case ({
                 vblock_7, vblock_6, vblock_5, vblock_4, vblock_3, vblock_2, vblock_1, vblock_0
             })
-                8'b0000_0001: Data = YELLOW;
-                8'b0000_0010: Data = BLACK;
-                8'b0000_0100: Data = BLUE;
+                8'b0000_0001: Data = PINK;
+                8'b0000_0010: Data = YELLOW;
+                8'b0000_0100: Data = BLACK;
                 8'b0000_1000: Data = RED;
                 8'b0001_0000: Data = GREEN;
-                8'b0010_0000: Data = PINK;
+                8'b0010_0000: Data = BLUE;
                 8'b0100_0000: Data = AQUA;
                 8'b1000_0000: Data = WHITE;
             endcase
